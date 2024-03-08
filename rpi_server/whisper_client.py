@@ -5,6 +5,7 @@ import sounddevice as sd
 from pydub import AudioSegment
 import requests
 import wavio
+import chat_completion
 
 
 def record_audio():
@@ -48,19 +49,25 @@ def save_to_mp3(wav_filename):
 
 
 def main():
-    input("Press Enter to start recording...")
-    start_time = datetime.now()
-    recording_thread = threading.Thread(target=lambda: save_recording(record_audio(), 44100))
-    recording_thread.start()
-    input()
-    sd.stop()
-    end_time = datetime.now()
-    recording_thread.join()
+    history = []
+    while True:
+        input("Press Enter to start recording...")
+        start_time = datetime.now()
+        recording_thread = threading.Thread(target=lambda: save_recording(record_audio(), 44100))
+        recording_thread.start()
+        input()
+        sd.stop()
+        end_time = datetime.now()
+        recording_thread.join()
 
-    trim_audio("audio_files/output.wav", start_time, end_time)
-    mp3_filename = save_to_mp3("audio_files/output.wav")
-    result = send_audio_and_get_transcription(mp3_filename)
-    print("Transcription:", result)
+        trim_audio("audio_files/output.wav", start_time, end_time)
+        mp3_filename = save_to_mp3("audio_files/output.wav")
+        result = send_audio_and_get_transcription(mp3_filename)
+        print("Transcription:", result)
+
+        answer = chat_completion.get_answer(result, history)
+        print("Answer:", answer["response"], answer["tag"])
+        history = answer["history"]
 
 
 if __name__ == '__main__':

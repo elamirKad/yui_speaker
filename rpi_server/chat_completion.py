@@ -33,30 +33,33 @@ def send_message_to_remote_server(url, headers, character, user_message, history
         return f"An error occurred: {e}", history
 
 
-url = "http://100.101.173.98:5000/v1/chat/completions"
-headers = {
-    "Content-Type": "application/json"
-}
-character = "Yui"
-user_message = "Hello, what is your name?"
-history = []
+def get_answer(user_message, history=None):
+    if history is None:
+        history = []
+    url = "http://100.101.173.98:5000/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    character = "Yui"
 
-response, updated_history = send_message_to_remote_server(url, headers, character, user_message, history)
-print("Response:", response)
-print("Conversation History:", updated_history)
+    response, updated_history = send_message_to_remote_server(url, headers, character, user_message, history)
+    # print("Response:", response)
+    # print("Conversation History:", updated_history)
 
-custom_tags = {
-    ("happy", "hehe"): "hehe",
-    ("sad", "heartbroken"): "heartbroken",
-    ("confused", "baffling", "puzzled"): "confused",
-    ("love", "peace"): "love",
-    ("angry", "mad", "furious"): "angry",
-    ("excited", "thrilled", "eager"): "excited",
-}
-tags_text = ", ".join([tag for tags in custom_tags.keys() for tag in tags])
-print("Tags:", tags_text)
-tagger_bot = TaggerBot(custom_tags)
+    custom_tags = {
+        ("happy", "hehe"): "hehe",
+        ("sad", "heartbroken"): "heartbroken",
+        ("confused", "baffling", "puzzled"): "confused",
+        ("love", "peace"): "love",
+        ("angry", "mad", "furious"): "angry",
+        ("excited", "thrilled", "eager"): "excited",
+    }
+    tags_text = ", ".join([tag for tags in custom_tags.keys() for tag in tags])
+    # print("Tags:", tags_text)
+    tagger_bot = TaggerBot(custom_tags)
 
-tag, _ = send_message_to_remote_server(url, headers, "TaggerBot", f"You: Categorize this text: ```{response}```. Use next tags: {tags_text}\n\n TaggerBot: tag: ", [{"role": "user", "content": f"You: Categorize this text: ```Just booked my dream vacation, I can hardly wait!```. Use next tags: {tags_text}\n\n TaggerBot: tag: "}, {"role": "assistant", "content": "hehe"}])
-print(tag)
-print(tagger_bot.analyze_text(tag))
+    tag, _ = send_message_to_remote_server(url, headers, "TaggerBot", f"You: Categorize this text: ```{response}```. Use next tags: {tags_text}\n\n TaggerBot: tag: ", [{"role": "user", "content": f"You: Categorize this text: ```Just booked my dream vacation, I can hardly wait!```. Use next tags: {tags_text}\n\n TaggerBot: tag: "}, {"role": "assistant", "content": "hehe"}])
+    # print(tag)
+    # print(tagger_bot.analyze_text(tag))
+
+    return {"response": response, "tag": tagger_bot.analyze_text(tag), "history": updated_history}

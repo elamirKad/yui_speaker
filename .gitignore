@@ -161,4 +161,5 @@ cython_debug/
 scripts/frames/*
 scripts/xbm/*
 gpu_server/medium.en.pt
+gpu_server/small.en.pt
 rpi_server/audio_files/*
